@@ -12,9 +12,6 @@ export const initialProfile = async () => {
       userId: user?.id,
     },
   });
-  console.log("testing");
-
-  console.log(profile);
 
   if (profile) return profile;
 
