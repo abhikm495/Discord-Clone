@@ -1,6 +1,5 @@
 import ServerSideBar from "@/components/server/server-sidebar";
-import { currentProfile } from "@/lib/current-profile";
-import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 const ServerIdLayout = async ({
@@ -10,24 +9,24 @@ const ServerIdLayout = async ({
   children: React.ReactNode;
   params: { serverId: string };
 }) => {
-  const profile = await currentProfile();
-  if (!profile) {
+  const session = await auth();
+  if (!session) {
     return redirect("/");
   }
 
-  const server = await db.server.findUnique({
-    where: {
-      id: params.serverId,
-      members: {
-        some: {
-          profileId: profile.id,
-        },
-      },
-    },
-  });
-  if (!server) {
-    return redirect("/");
-  }
+  // const server = await db.server.findUnique({
+  //   where: {
+  //     id: params.serverId,
+  //     members: {
+  //       some: {
+  //         profileId: profile.id,
+  //       },
+  //     },
+  //   },
+  // });
+  // if (!server) {
+  //   return redirect("/");
+  // }
   return (
     <div className="h-full">
       <div className="hidden md:flex h-full w-60 z-20 flex-col fixed inset-y-0">

@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { useModal } from "@/hooks/user-model-store";
 import {
   Form,
   FormControl,
@@ -26,8 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { FileUpload } from "../file-upload";
-import { useModel } from "@/hooks/user-model-store";
+// import { useModel } from "@/hooks/user-model-store";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -39,7 +38,7 @@ const formSchema = z.object({
 });
 
 export function CreateServerModel() {
-  const { type, isOpen, onClose } = useModel();
+  const { type, isOpen, onClose } = useModal();
   const router = useRouter();
 
   const isModelOpen = isOpen && type === "createServer";
@@ -93,11 +92,11 @@ export function CreateServerModel() {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <FileUpload
+                        {/* <FileUpload
                           endPoint="serverImage"
                           value={field.value}
                           onChange={field.onChange}
-                        />
+                        /> */}
                       </FormControl>
                     </FormItem>
                   )}

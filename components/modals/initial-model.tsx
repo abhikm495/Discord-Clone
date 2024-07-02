@@ -26,7 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
-import { FileUpload } from "../file-upload";
+import ImageDropZone from "../upload-image/ImageDropZone";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -54,7 +54,7 @@ export function InitialModel() {
   });
 
   const isLoading = form.formState.isSubmitting;
-
+  const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.post("/api/servers", values);
@@ -81,25 +81,8 @@ export function InitialModel() {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-8 py-6">
-              <div className="flex items-center justify-center text-center">
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FileUpload
-                          endPoint="serverImage"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                ></FormField>
-              </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <div className="mx-5">
               <FormField
                 control={form.control}
                 name="name"
@@ -121,8 +104,20 @@ export function InitialModel() {
                 )}
               ></FormField>
             </div>
-            <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button variant={"primary"} disabled={isLoading}>
+            <div className="flex justify-center items-center pb-10">
+              <ImageDropZone
+                active={croppedImage ? true : false}
+                setCroppedImage={setCroppedImage}
+                content={"Upload Server Image"}
+              />
+            </div>
+
+            <DialogFooter className="bg-gray-100 px-6 py-4 ">
+              <Button
+                variant={"primary"}
+                className="w-full"
+                disabled={isLoading}
+              >
                 Create
               </Button>
             </DialogFooter>

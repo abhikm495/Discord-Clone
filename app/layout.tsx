@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { cn } from "@/lib/utils";
 import { ModelProvider } from "@/components/providers/model-provider";
+import SessionProvider from "@/components/SessionProvider";
+import { Toaster } from "@/components/ui/sonner";
+
 const font = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -18,20 +20,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={cn(font.className, "bg-white dark:bg-[#313338]")}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            storageKey="discord-theme"
-          >
-            <ModelProvider />
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn(font.className, "bg-white dark:bg-[#313338]")}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          storageKey="discord-theme"
+        >
+          <ModelProvider />
+          <SessionProvider>
             {children}
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+            <Toaster
+              toastOptions={{
+                duration: 3000,
+                classNames: {
+                  error: "bg-red-400",
+                  success: "text-green-400",
+                  warning: "text-yellow-400",
+                  info: "bg-blue-400",
+                },
+              }}
+            />
+          </SessionProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
