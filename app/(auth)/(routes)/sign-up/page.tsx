@@ -49,7 +49,7 @@ export default function Page() {
       if (response && response.type === "error") {
         return toast.error(response.message, { id: toastId });
       } else {
-        toast.info("Sign up successful", { id: toastId });
+        toast.success("Sign up successful", { id: toastId });
       }
     } catch (error) {
       console.log(error);

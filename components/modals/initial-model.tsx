@@ -27,13 +27,12 @@ import {
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
 import ImageDropZone from "../upload-image/ImageDropZone";
+import { toast } from "sonner";
+import { createServerAction } from "@/actions/createServerAction";
 
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Server name is required",
-  }),
-  imageUrl: z.string().min(1, {
-    message: "Server Image is required",
   }),
 });
 
@@ -49,18 +48,24 @@ export function InitialModel() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      imageUrl: "",
     },
   });
 
   const isLoading = form.formState.isSubmitting;
   const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!croppedImage) return toast.info("Please Upload Profile Image");
+    const toastId = toast.info("Processing");
     try {
-      await axios.post("/api/servers", values);
-      form.reset();
-      router.refresh();
-      window.location.reload();
+      const form = new FormData();
+      form.append("name", values.name);
+      form.append("file", croppedImage);
+      const response = await createServerAction(form);
+      if (response && response.type === "error") {
+        return toast.error(response.message, { id: toastId });
+      } else {
+        toast.success("Server created successfully", { id: toastId });
+      }
     } catch (error) {
       console.log(error);
     }

@@ -2,8 +2,8 @@ import axios, { AxiosError } from "axios";
 import { auth, signIn } from "./auth";
 import { loginResponseSchema } from "@/schema/responseSchema/loginResponseSchema";
 import refreshJWT from "@/actions/refreshJwtAction";
-// import signOutAction from "@/actions/signOutAction";
 import { BACKEND_URL } from "./constants";
+import { signoutAction } from "@/actions/signoutAction";
 const axiosInstance = (token: string | undefined, contentType?: string) => {
   const axiosPrivateInstance = axios.create({
     baseURL: BACKEND_URL,
@@ -52,7 +52,7 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
         } catch (error) {
           if (error instanceof AxiosError) {
             console.log("error from axios interceptors", error.response?.data);
-            // await signOutAction();
+            await signoutAction();
           }
           // Handle refresh token error or redirect to login
         }
