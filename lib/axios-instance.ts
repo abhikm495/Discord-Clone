@@ -1,8 +1,9 @@
 import axios, { AxiosError } from "axios";
-import { auth, signIn } from "./auth";
+import { auth, signIn, signOut } from "./auth";
 import { loginResponseSchema } from "@/schema/responseSchema/loginResponseSchema";
 import refreshJWT from "@/actions/refreshJwtAction";
 import { BACKEND_URL } from "./constants";
+import { redirect } from "next/navigation";
 import { signoutAction } from "@/actions/signoutAction";
 const axiosInstance = (token: string | undefined, contentType?: string) => {
   const axiosPrivateInstance = axios.create({
@@ -16,12 +17,13 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      console.log(originalRequest);
+      console.log("original Request", originalRequest);
 
       // If the error status is 401 and there is no originalRequest._retry flag,
       // it means the token has expired and we need to refresh it
       if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
+        console.log("refreshh");
 
         try {
           const session = await auth();
@@ -29,6 +31,7 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
           if (!session?.user) {
             return Promise.reject(error);
           }
+          console.log("refreshhApi");
 
           const response = await axios({
             method: "post",
@@ -36,25 +39,33 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
             url: "api/v1/auth/refresh",
             headers: {
               Authorization: `Bearer ${session.user.refreshToken}`,
+              "Content-Type": "application/json",
             },
           });
+          console.log("refreshhApiRes");
+          console.log(response.data);
+
           const parsedData = await loginResponseSchema.safeParseAsync(
             response.data
           );
+
+          console.log(parsedData.success);
+
           if (!parsedData.success) {
             return Promise.reject(error);
           }
 
           refreshJWT(parsedData.data);
           // Retry the original request with the new token
+          console.log("new ac token", parsedData.data.jwttoken);
+
           originalRequest.headers.Authorization = `Bearer ${parsedData.data.jwttoken}`;
           return axios(originalRequest);
         } catch (error) {
           if (error instanceof AxiosError) {
             console.log("error from axios interceptors", error.response?.data);
-            await signoutAction();
           }
-          // Handle refresh token error or redirect to login
+          //   await signoutAction();
         }
       }
       return Promise.reject(error);
@@ -65,70 +76,3 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
 };
 
 export default axiosInstance;
-
-// export const testAxiosInstance = (serviceType: keyof typeof serviceBaseUrl) => {
-//   const axiosInstance = axios.create({
-//     baseURL: serviceBaseUrl[serviceType],
-//   });
-
-//   axiosInstance.interceptors.request.use(async (config) => {
-//     const session = await auth();
-//     if (session?.user) {
-//       config.headers.Authorization = `Bearer ${session.user.jwtToken}`;
-//     }
-//     return config;
-//   });
-
-//   axiosInstance.interceptors.response.use(
-//     (response) => {
-//       return response;
-//     },
-//     async (error) => {
-//       const originalRequest = error.config;
-
-//       // If the error status is 401 and there is no originalRequest._retry flag,
-//       // it means the token has expired and we need to refresh it
-//       if (error.response.status === 401 && !originalRequest._retry) {
-//         originalRequest._retry = true;
-
-//         try {
-//           const session = await auth();
-
-//           if (!session?.user) {
-//             return Promise.reject(error);
-//           }
-
-//           const response = await axios({
-//             method: "post",
-//             baseURL: serviceBaseUrl.auth,
-//             url: "/refresh-token",
-//             data: {
-//               token: session.user.refreshToken,
-//             },
-//           });
-//           const parsedData = await loginResponseSchema.safeParseAsync(
-//             response.data
-//           );
-//           if (!parsedData.success) {
-//             return Promise.reject(error);
-//           }
-
-//           await signIn("credentials", {
-//             jwtToken: parsedData.data.jwttoken,
-//             refreshToken: parsedData.data.refreshtoken,
-//             ...parsedData.data.user,
-//           });
-
-//           // Retry the original request with the new token
-//           originalRequest.headers.Authorization = `Bearer ${parsedData.data.jwttoken}`;
-//           return axios(originalRequest);
-//         } catch (error) {
-//           // Handle refresh token error or redirect to login
-//         }
-//       }
-//       return Promise.reject(error);
-//     }
-//   );
-
-//   return axiosInstance;
-// };

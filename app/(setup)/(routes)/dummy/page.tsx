@@ -1,10 +1,9 @@
 "use client";
 import { signoutAction } from "@/actions/signoutAction";
 import { Button } from "@/components/ui/button";
-import React from "react";
 import { toast } from "sonner";
 
-const page = () => {
+const Page = () => {
   const handleSignout = async () => {
     const toastId = toast.info("Processing");
     try {
@@ -35,4 +34,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

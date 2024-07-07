@@ -1,10 +1,10 @@
 // import { initialProfile } from "@/lib/initial-profile";
 import { redirect } from "next/navigation";
 import { InitialModel } from "@/components/modals/initial-model";
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
 import { userFirstServerResponseSchema } from "@/schema/responseSchema/usersFirstServerResponseSchema";
-import { NextResponse } from "next/server";
+import { AxiosError } from "axios";
 
 const SetupPage = async () => {
   const session = await auth();
@@ -19,15 +19,17 @@ const SetupPage = async () => {
       console.log(`Parsing Error: ${[parsedData.error]} `);
       return;
     }
-    console.log(parsedData.data.success);
 
     if (!parsedData.data.success) {
       return <InitialModel />;
     }
-    url = `servers/${parsedData.data.data.serverId}`;
+    url = `/servers/${parsedData.data.data.serverId}`;
   } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log("error from axios interceptors", error.response?.data);
+      return;
+    }
     console.log(error);
-    return;
   } finally {
     if (url !== "") return redirect(url);
   }

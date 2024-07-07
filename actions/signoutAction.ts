@@ -20,20 +20,20 @@ export async function signoutAction(): Promise<ResponseSchema | void> {
         message: "user not logged in",
       };
     }
-    const { data } = await axiosInstance(session.user.jwtToken).post(
-      "api/v1/auth/signout"
-    );
+    // const { data } = await axiosInstance(session.user.jwtToken).post(
+    //   "api/v1/auth/signout"
+    // );
 
-    const signoutResponse = await SignoutResponseSchema.safeParseAsync(data);
-    if (!signoutResponse.success) {
-      return {
-        type: "error",
-        message: "Response validation error",
-      };
-    }
+    // const signoutResponse = await SignoutResponseSchema.safeParseAsync(data);
+    // if (!signoutResponse.success) {
+    //   return {
+    //     type: "error",
+    //     message: "Response validation error",
+    //   };
+    // }
     await signOut();
 
-    redirect("/login");
+    redirect("/sign-in");
   } catch (error) {
     if (isRedirectError(error)) {
       throw error;

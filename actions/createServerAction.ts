@@ -22,10 +22,10 @@ export async function createServerAction(
         message: "User must be logged in",
       };
     }
-    const { data } = await axiosInstance(session.user.jwtToken).post(
-      "api/v1/servers",
-      form
-    );
+    const { data } = await axiosInstance(
+      session.user.jwtToken,
+      "multipart/form-data"
+    ).post("api/v1/servers", form);
     redirect("/");
   } catch (error) {
     if (isRedirectError(error)) {

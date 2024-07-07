@@ -38,7 +38,6 @@ const formSchema = z.object({
 
 export function InitialModel() {
   const [isMounted, setIsMounted] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -60,6 +59,7 @@ export function InitialModel() {
       const form = new FormData();
       form.append("name", values.name);
       form.append("file", croppedImage);
+
       const response = await createServerAction(form);
       if (response && response.type === "error") {
         return toast.error(response.message, { id: toastId });

@@ -25,15 +25,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import ImageDropZone from "../upload-image/ImageDropZone";
+import { toast } from "sonner";
+import { useState } from "react";
+import { createServerAction } from "@/actions/createServerAction";
 
 // import { useModel } from "@/hooks/user-model-store";
 
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Server name is required",
-  }),
-  imageUrl: z.string().min(1, {
-    message: "Server Image is required",
   }),
 });
 
@@ -47,26 +48,49 @@ export function CreateServerModel() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      imageUrl: "",
     },
   });
 
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      await axios.post("/api/servers", values);
-      form.reset();
-      router.refresh();
-      onClose();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const a = async (values: z.infer<typeof formSchema>) => {
+  //   try {
+  //     await axios.post("/api/servers", values);
+  //     form.rese;
+  //     router.refresh();
+  //     onClose();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const handleClose = () => {
     form.reset();
     onClose();
+  };
+
+  const [croppedImage, setCroppedImage] = useState<File | null>(null);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!croppedImage) return toast.info("Please Upload Profile Image");
+    const toastId = toast.info("Processing");
+    try {
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("file", croppedImage);
+
+      const response = await createServerAction(formData);
+      if (response && response.type === "error") {
+        return toast.error(response.message, { id: toastId });
+      } else {
+        toast.success("Server created successfully", { id: toastId });
+        form.reset();
+        router.refresh();
+        onClose();
+        setCroppedImage(null);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -83,25 +107,8 @@ export function CreateServerModel() {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="">
             <div className="space-y-8 py-6">
-              <div className="flex items-center justify-center text-center">
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        {/* <FileUpload
-                          endPoint="serverImage"
-                          value={field.value}
-                          onChange={field.onChange}
-                        /> */}
-                      </FormControl>
-                    </FormItem>
-                  )}
-                ></FormField>
-              </div>
               <FormField
                 control={form.control}
                 name="name"
@@ -123,8 +130,19 @@ export function CreateServerModel() {
                 )}
               ></FormField>
             </div>
+            <div className="flex justify-center items-center pb-10">
+              <ImageDropZone
+                active={croppedImage ? true : false}
+                setCroppedImage={setCroppedImage}
+                content={"Upload Server Image"}
+              />
+            </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button variant={"primary"} disabled={isLoading}>
+              <Button
+                variant={"primary"}
+                disabled={isLoading}
+                className="w-full"
+              >
                 Create
               </Button>
             </DialogFooter>

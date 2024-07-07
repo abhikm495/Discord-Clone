@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { ActionToolTip } from "@/components/action-tooltip";
-import { useModel } from "@/hooks/user-model-store";
+import { useModal } from "@/hooks/user-model-store";
 
 export const NavigationAction = () => {
   const [mounted, setMounted] = useState(false);
-  const { onOpen } = useModel();
+  const { onOpen } = useModal();
   useEffect(() => {
     setMounted(true);
   }, []);

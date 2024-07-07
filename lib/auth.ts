@@ -30,7 +30,7 @@ export const {
           return {
             jwtToken: loginResponse.data.jwttoken,
             refreshToken: loginResponse.data.refreshtoken,
-            ...loginResponse.data,
+            ...loginResponse.data.user,
           };
         } catch (error) {
           if (error instanceof AxiosError) {

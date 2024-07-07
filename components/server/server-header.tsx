@@ -1,6 +1,4 @@
-import { ServerWithMembersWithProfiles } from "@/type";
-import { MemberRole } from "@prisma/client";
-import React from "react";
+import { ServerModuleSchema } from "@/schema/responseSchema/serverResponseSchema";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,14 +15,23 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { useModal } from "@/hooks/user-model-store";
+import { z } from "zod";
+// import { useModal } from "@/hooks/user-model-store";
+export enum MemberRole {
+  ADMIN = "ADMIN",
+  MODERATOR = "MODERATOR",
+  GUEST = "GUEST",
+}
+const RoleEnum = z.enum(["ADMIN", "MODERATOR", "GUEST"]);
 
+// Create a type from the enum
+type Role = z.infer<typeof RoleEnum>;
 interface ServerHeaderProps {
-  server: ServerWithMembersWithProfiles;
-  role?: MemberRole;
+  server: ServerModuleSchema;
+  role?: Role;
 }
 const ServerHeader = ({ server, role }: ServerHeaderProps) => {
-  const { onOpen } = useModal();
+  // const { onOpen } = useModal();
 
   const isAdmin = role === MemberRole.ADMIN;
   const isModerator = isAdmin || role === MemberRole.MODERATOR;
@@ -32,7 +39,7 @@ const ServerHeader = ({ server, role }: ServerHeaderProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none" asChild>
         <button className="w-full text-md font-semibold px-3 flex items-center h-12 border-neutral-200 dark:border-neutral-800 border-b-2 hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 transition">
-          {server.name}
+          {server.server.name}
           <ChevronDown className="h-5 w-5 ml-auto" />
         </button>
       </DropdownMenuTrigger>
