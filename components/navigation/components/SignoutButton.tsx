@@ -1,9 +1,10 @@
 "use client";
+
 import { signoutAction } from "@/actions/signoutAction";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const Page = () => {
+const SignoutButton = () => {
   const handleSignout = async () => {
     const toastId = toast.info("Processing");
     try {
@@ -26,12 +27,13 @@ const Page = () => {
       });
     }
   };
-
   return (
-    <div>
-      <Button onClick={handleSignout}>Sign out</Button>
+    <div className="flex justify-center items-center ">
+      <Button size={"lg"} className="px-0" onClick={handleSignout}>
+        Sign out
+      </Button>
     </div>
   );
 };
 
-export default Page;
+export default SignoutButton;

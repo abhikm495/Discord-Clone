@@ -1,7 +1,7 @@
 // import { initialProfile } from "@/lib/initial-profile";
 import { redirect } from "next/navigation";
 import { InitialModel } from "@/components/modals/initial-model";
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
 import { userFirstServerResponseSchema } from "@/schema/responseSchema/usersFirstServerResponseSchema";
 import { AxiosError } from "axios";

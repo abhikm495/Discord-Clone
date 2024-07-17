@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import axios from "axios";
 import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
@@ -29,8 +28,6 @@ import ImageDropZone from "../upload-image/ImageDropZone";
 import { toast } from "sonner";
 import { useState } from "react";
 import { createServerAction } from "@/actions/createServerAction";
-
-// import { useModel } from "@/hooks/user-model-store";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -64,11 +61,6 @@ export function CreateServerModel() {
   //   }
   // };
 
-  const handleClose = () => {
-    form.reset();
-    onClose();
-  };
-
   const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!croppedImage) return toast.info("Please Upload Profile Image");
@@ -91,6 +83,11 @@ export function CreateServerModel() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleClose = () => {
+    form.reset();
+    onClose();
   };
 
   return (

@@ -8,8 +8,7 @@ import { ModeToggle } from "../mode-toggle";
 import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
 import { userServersResponseSchema } from "@/schema/responseSchema/usersServerResponseSchema";
-import { Button } from "../ui/button";
-
+import SignOutButton from "./components/SignoutButton";
 const NavigationSideBar = async () => {
   const session = await auth();
   if (!session) return redirect("/");
@@ -42,33 +41,15 @@ const NavigationSideBar = async () => {
             </div>
           ))}
         </ScrollArea>
-        <div className="pb-3 mt-auto flex items-center flex-col gap-y-4">
+        <div className="pb-3 mt-auto flex items-center  flex-col gap-y-4">
           <ModeToggle />
-          {/* <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "h-[48px] w-[48px]",
-              },
-            }}
-          /> */}
-          <Button>Signout</Button>
+          <SignOutButton />
         </div>
       </div>
     );
   } catch (error) {
     console.log(error);
   }
-  // const servers = await db.server.findMany({
-  //   where: {
-  //     members: {
-  //       some: {
-  //         profileId: profile.id,
-  //       },
-  //     },
-  //   },
-  // });
-  // return <div>Navigation sidebar</div>;
 };
 
 export default NavigationSideBar;

@@ -9,7 +9,7 @@ const profileSchema = z.object({
   email: z.string().email(),
 });
 
-const MemberRole = z.enum(["ADMIN", "MODERATOR", "GUEST"]);
+export const MemberRole = z.enum(["ADMIN", "MODERATOR", "GUEST"]);
 const memberSchema = z.object({
   id: z.number(),
   profileId: z.number(),
@@ -18,7 +18,7 @@ const memberSchema = z.object({
   profile: profileSchema,
 });
 
-const ChannelType = z.enum(["TEXT", "AUDIO", "VIDEO"]);
+export const ChannelType = z.enum(["TEXT", "AUDIO", "VIDEO"]);
 
 const channelSchema = z.object({
   id: z.number(),
@@ -49,3 +49,4 @@ export const serverResponseSchema = z
     data: serverModule,
   })
   .merge(generalResponseSchema);
+export type ServerResponse = z.infer<typeof serverResponseSchema>;
