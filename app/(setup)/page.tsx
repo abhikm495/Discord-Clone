@@ -1,6 +1,6 @@
 // import { initialProfile } from "@/lib/initial-profile";
 import { redirect } from "next/navigation";
-import { InitialModel } from "@/components/modals/initial-model";
+import { InitialModal } from "@/components/modals/initial-modal";
 import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
 import { userFirstServerResponseSchema } from "@/schema/responseSchema/usersFirstServerResponseSchema";
@@ -21,7 +21,7 @@ const SetupPage = async () => {
     }
 
     if (!parsedData.data.success) {
-      return <InitialModel />;
+      return <InitialModal />;
     }
     url = `/servers/${parsedData.data.data.serverId}`;
   } catch (error) {

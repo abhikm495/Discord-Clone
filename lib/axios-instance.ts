@@ -17,13 +17,11 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      console.log("original Request", originalRequest);
 
       // If the error status is 401 and there is no originalRequest._retry flag,
       // it means the token has expired and we need to refresh it
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
-        console.log("refreshh");
 
         try {
           const session = await auth();
@@ -31,7 +29,6 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
           if (!session?.user) {
             return Promise.reject(error);
           }
-          console.log("refreshhApi");
 
           const response = await axios({
             method: "post",
@@ -42,14 +39,10 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
               "Content-Type": "application/json",
             },
           });
-          console.log("refreshhApiRes");
-          console.log(response.data);
 
           const parsedData = await loginResponseSchema.safeParseAsync(
             response.data
           );
-
-          console.log(parsedData.success);
 
           if (!parsedData.success) {
             return Promise.reject(error);
@@ -57,7 +50,6 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
 
           refreshJWT(parsedData.data);
           // Retry the original request with the new token
-          console.log("new ac token", parsedData.data.jwttoken);
 
           originalRequest.headers.Authorization = `Bearer ${parsedData.data.jwttoken}`;
           return axios(originalRequest);

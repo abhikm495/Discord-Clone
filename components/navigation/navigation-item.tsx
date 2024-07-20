@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-
 import { cn } from "@/lib/utils";
 import { ActionToolTip } from "@/components/action-tooltip";
+import Link from "next/link";
 
 interface NavigationItemProps {
   id: number;
@@ -14,15 +14,13 @@ interface NavigationItemProps {
 
 const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
   const params = useParams();
-  const router = useRouter();
-
-  const onClick = () => {
-    router.push(`/servers/${id}`);
-  };
 
   return (
     <ActionToolTip side="right" align="center" label={name}>
-      <button onClick={onClick} className="group relative flex items-center">
+      <Link
+        href={`/servers/${id}`}
+        className="group relative flex items-center"
+      >
         <div
           className={cn(
             "absolute left-0 bg-primary rounded-r-full transition-all w=[4px]",
@@ -55,7 +53,7 @@ const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
         >
           <Image fill src={imageUrl} alt="Channel" />
         </div>
-      </button>
+      </Link>
     </ActionToolTip>
   );
 };

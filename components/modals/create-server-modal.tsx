@@ -11,12 +11,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import axios from "axios";
 import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { useModal } from "@/hooks/user-model-store";
 import {
   Form,
   FormControl,
@@ -25,9 +24,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useEffect, useState } from "react";
 import ImageDropZone from "../upload-image/ImageDropZone";
 import { toast } from "sonner";
+import { useState } from "react";
 import { createServerAction } from "@/actions/createServerAction";
 
 const formSchema = z.object({
@@ -36,12 +35,11 @@ const formSchema = z.object({
   }),
 });
 
-export function InitialModel() {
-  const [isMounted, setIsMounted] = useState(false);
+export function CreateServerModel() {
+  const { type, isOpen, onClose } = useModal();
+  const router = useRouter();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isModelOpen = isOpen && type === "createServer";
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -51,29 +49,38 @@ export function InitialModel() {
   });
 
   const isLoading = form.formState.isSubmitting;
+
   const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!croppedImage) return toast.info("Please Upload Profile Image");
     const toastId = toast.info("Processing");
     try {
-      const form = new FormData();
-      form.append("name", values.name);
-      form.append("file", croppedImage);
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("file", croppedImage);
 
-      const response = await createServerAction(form);
+      const response = await createServerAction(formData);
       if (response && response.type === "error") {
         return toast.error(response.message, { id: toastId });
       } else {
         toast.success("Server created successfully", { id: toastId });
+        form.reset();
+        router.refresh();
+        onClose();
+        setCroppedImage(null);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  if (!isMounted) return null;
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
+
   return (
-    <Dialog open>
+    <Dialog open={isModelOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-white text-black p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
@@ -86,8 +93,8 @@ export function InitialModel() {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <div className="mx-5">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="">
+            <div className="space-y-8 py-6">
               <FormField
                 control={form.control}
                 name="name"
@@ -116,12 +123,11 @@ export function InitialModel() {
                 content={"Upload Server Image"}
               />
             </div>
-
-            <DialogFooter className="bg-gray-100 px-6 py-4 ">
+            <DialogFooter className="bg-gray-100 px-6 py-4">
               <Button
                 variant={"primary"}
-                className="w-full"
                 disabled={isLoading}
+                className="w-full"
               >
                 Create
               </Button>

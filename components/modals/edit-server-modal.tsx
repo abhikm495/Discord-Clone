@@ -26,8 +26,10 @@ import {
 } from "@/components/ui/form";
 import ImageDropZone from "../upload-image/ImageDropZone";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createServerAction } from "@/actions/createServerAction";
+import Image from "next/image";
+import { updateServerAction } from "@/actions/updateServerAction";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -35,11 +37,11 @@ const formSchema = z.object({
   }),
 });
 
-export function CreateServerModel() {
-  const { type, isOpen, onClose } = useModal();
+export function EditServerModal() {
+  const { type, isOpen, onClose, data } = useModal();
   const router = useRouter();
-
-  const isModelOpen = isOpen && type === "createServer";
+  const { server } = data;
+  const isModelOpen = isOpen && type === "editServer";
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -50,17 +52,6 @@ export function CreateServerModel() {
 
   const isLoading = form.formState.isSubmitting;
 
-  // const a = async (values: z.infer<typeof formSchema>) => {
-  //   try {
-  //     await axios.post("/api/servers", values);
-  //     form.rese;
-  //     router.refresh();
-  //     onClose();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   const [croppedImage, setCroppedImage] = useState<File | null>(null);
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!croppedImage) return toast.info("Please Upload Profile Image");
@@ -69,14 +60,13 @@ export function CreateServerModel() {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("file", croppedImage);
-
-      const response = await createServerAction(formData);
+      if (!server)
+        return toast.error("could'nt fetch server details", { id: toastId });
+      const response = await updateServerAction(formData, server.id);
       if (response && response.type === "error") {
         return toast.error(response.message, { id: toastId });
       } else {
-        toast.success("Server created successfully", { id: toastId });
-        form.reset();
-        router.refresh();
+        toast.success(response.message, { id: toastId });
         onClose();
         setCroppedImage(null);
       }
@@ -88,7 +78,14 @@ export function CreateServerModel() {
   const handleClose = () => {
     form.reset();
     onClose();
+    setCroppedImage(null);
   };
+
+  useEffect(() => {
+    if (server) {
+      form.setValue("name", server.name);
+    }
+  }, [server, form]);
 
   return (
     <Dialog open={isModelOpen} onOpenChange={handleClose}>
@@ -105,6 +102,20 @@ export function CreateServerModel() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="">
+            {server && !croppedImage && (
+              <div className="flex justify-center items-center my-6">
+                <div className="relative w-40 h-40 rounded-full overflow-hidden">
+                  <Image
+                    src={server?.imageUrl}
+                    alt="server-img"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-full"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-8 py-6">
               <FormField
                 control={form.control}
@@ -131,7 +142,7 @@ export function CreateServerModel() {
               <ImageDropZone
                 active={croppedImage ? true : false}
                 setCroppedImage={setCroppedImage}
-                content={"Upload Server Image"}
+                content={"Update server image"}
               />
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
@@ -140,7 +151,7 @@ export function CreateServerModel() {
                 disabled={isLoading}
                 className="w-full"
               >
-                Create
+                Save
               </Button>
             </DialogFooter>
           </form>

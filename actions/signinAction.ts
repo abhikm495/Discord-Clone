@@ -9,7 +9,6 @@ import { AuthError } from "next-auth";
 export async function signInAction(signInData: SignInSchema) {
   try {
     const parsedData = await signInSchema.safeParseAsync(signInData);
-    console.log(parsedData.success);
     if (!parsedData.success) {
       return {
         type: "error",

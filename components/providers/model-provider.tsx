@@ -1,7 +1,10 @@
 "use client";
 
-import { CreateServerModel } from "@/components/modals/create-server-model";
+import { CreateServerModel } from "@/components/modals/create-server-modal";
 import { useEffect, useState } from "react";
+import { InviteModal } from "../modals/invite-modal";
+import { EditServerModal } from "../modals/edit-server-modal";
+import { MembersModal } from "../modals/members-modal";
 
 export const ModelProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -13,6 +16,9 @@ export const ModelProvider = () => {
   return (
     <>
       <CreateServerModel />
+      <InviteModal />
+      <EditServerModal />
+      <MembersModal />
     </>
   );
 };
