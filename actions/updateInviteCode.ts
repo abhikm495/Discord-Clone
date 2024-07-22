@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
 import { AxiosError } from "axios";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 interface ResponseSchema {
@@ -40,6 +41,7 @@ export async function updateInviteCode(
         data: "",
       };
     }
+    revalidatePath("/server/:id");
     return {
       type: "success",
       message: parsedData.data.message,

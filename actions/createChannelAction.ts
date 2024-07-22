@@ -4,7 +4,10 @@ import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
 import { Server } from "@/schema/responseSchema/serverResponseSchema";
 import { AxiosError } from "axios";
-
+import {
+  CreateChannelSchema,
+  createChannelSchema,
+} from "@/schema/createChannelSchema";
 import { serverResponseSchema } from "@/schema/responseSchema/serverResponseSchema";
 import { revalidatePath } from "next/cache";
 interface ResponseSchema {
@@ -13,12 +16,14 @@ interface ResponseSchema {
   data?: Server;
 }
 
-export async function updateMember(
-  memberId: number,
+export async function createChannelAction(
   serverId: number,
-  role: "GUEST" | "MODERATOR"
+  channelSchema: CreateChannelSchema
 ): Promise<ResponseSchema> {
   try {
+    console.log("serverId", serverId);
+    console.log("input", channelSchema.name, channelSchema.type);
+
     const session = await auth();
     if (!session) {
       return {
@@ -26,15 +31,26 @@ export async function updateMember(
         message: "user not logged in",
       };
     }
+    const reqValidation = await createChannelSchema.safeParseAsync(
+      channelSchema
+    );
+    if (!reqValidation.success) {
+      return {
+        type: "error",
+        message: "Request Validation error",
+      };
+    }
+
     const url = qs.stringifyUrl({
-      url: `/api/v1/members/${memberId}`,
+      url: `/api/v1/channels`,
       query: {
         serverId: serverId,
       },
     });
 
-    const { data } = await axiosInstance(session.user.jwtToken).patch(url, {
-      role,
+    const { data } = await axiosInstance(session.user.jwtToken).post(url, {
+      name: channelSchema.name,
+      type: channelSchema.type,
     });
 
     const parsedData = await serverResponseSchema.safeParseAsync(data);
@@ -51,7 +67,7 @@ export async function updateMember(
       data: parsedData.data.data.server,
     };
   } catch (error) {
-    console.log("update member error", error);
+    console.log("channel creation error", error);
     if (error instanceof AxiosError) {
       return {
         type: "error",

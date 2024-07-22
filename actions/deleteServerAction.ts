@@ -2,21 +2,21 @@
 import qs from "query-string";
 import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
-import { Server } from "@/schema/responseSchema/serverResponseSchema";
 import { AxiosError } from "axios";
-
-import { serverResponseSchema } from "@/schema/responseSchema/serverResponseSchema";
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 interface ResponseSchema {
   type: "error" | "success";
   message: string;
-  data?: Server;
 }
+const leaveServerResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.string(),
+});
 
-export async function updateMember(
-  memberId: number,
-  serverId: number,
-  role: "GUEST" | "MODERATOR"
+export async function deleteServerAction(
+  serverId: number
 ): Promise<ResponseSchema> {
   try {
     const session = await auth();
@@ -27,31 +27,25 @@ export async function updateMember(
       };
     }
     const url = qs.stringifyUrl({
-      url: `/api/v1/members/${memberId}`,
-      query: {
-        serverId: serverId,
-      },
+      url: `/api/v1/servers/${serverId}`,
     });
 
-    const { data } = await axiosInstance(session.user.jwtToken).patch(url, {
-      role,
-    });
+    const { data } = await axiosInstance(session.user.jwtToken).delete(url);
 
-    const parsedData = await serverResponseSchema.safeParseAsync(data);
+    const parsedData = await leaveServerResponseSchema.safeParseAsync(data);
     if (!parsedData.success) {
       return {
         type: "error",
         message: "response validation error",
       };
     }
-    revalidatePath("servers/:id");
+    revalidatePath("/");
     return {
       type: "success",
       message: parsedData.data.message,
-      data: parsedData.data.data.server,
     };
   } catch (error) {
-    console.log("update member error", error);
+    console.log("delete server error", error);
     if (error instanceof AxiosError) {
       return {
         type: "error",

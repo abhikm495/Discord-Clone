@@ -13,10 +13,9 @@ interface ResponseSchema {
   data?: Server;
 }
 
-export async function updateMember(
-  memberId: number,
+export async function deleteMember(
   serverId: number,
-  role: "GUEST" | "MODERATOR"
+  memberId: number
 ): Promise<ResponseSchema> {
   try {
     const session = await auth();
@@ -33,9 +32,7 @@ export async function updateMember(
       },
     });
 
-    const { data } = await axiosInstance(session.user.jwtToken).patch(url, {
-      role,
-    });
+    const { data } = await axiosInstance(session.user.jwtToken).delete(url);
 
     const parsedData = await serverResponseSchema.safeParseAsync(data);
     if (!parsedData.success) {
@@ -51,7 +48,7 @@ export async function updateMember(
       data: parsedData.data.data.server,
     };
   } catch (error) {
-    console.log("update member error", error);
+    console.log("delete member error", error);
     if (error instanceof AxiosError) {
       return {
         type: "error",

@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { updateInviteCode } from "@/actions/updateInviteCode";
 import { AxiosError } from "axios";
 import { ScrollArea } from "../ui/scroll-area";
 import { UserAvatar } from "../user-avatar";
@@ -42,7 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { updateMember } from "@/actions/updateMemberAction";
-import { MemberRole } from "../server/server-header";
+import { deleteMember } from "@/actions/deleteMemberAction";
 
 const roleIconMap = {
   GUEST: null,
@@ -57,28 +56,52 @@ export function MembersModal() {
   const isModelOpen = isOpen && type === "members";
 
   const [loadingId, setLoadingId] = useState("");
-  const [loading, setIsLoading] = useState(false);
 
+  const onKick = async (memberId: number) => {
+    const toastId = toast.info("Processing");
+    try {
+      if (!server) return toast.error("Server not present", { id: toastId });
+      setLoadingId(memberId.toString());
+      const res = await deleteMember(server.id, memberId);
+      if (res.type === "success") {
+        toast.success(res.message, { id: toastId });
+        onOpen("members", { server: res.data });
+      } else {
+        toast.error(res.message, { id: toastId });
+      }
+    } catch (error) {
+      console.log("delete member error", error);
+      if (error instanceof AxiosError) {
+        setLoadingId("");
+        return toast.error(error.response?.data.message);
+      }
+      toast.error("something went wrong", { id: toastId });
+    } finally {
+      setLoadingId("");
+    }
+  };
   const onRoleChange = async (
     memberId: number,
     role: "GUEST" | "MODERATOR"
   ) => {
     const toastId = toast.info("Processing");
     try {
-      setIsLoading(true);
       if (!server) return toast.error("Server not present", { id: toastId });
+      setLoadingId(memberId.toString());
       const res = await updateMember(memberId, server.id, role);
       if (res.type === "success") {
         toast.success(res.message);
         onOpen("members", { server: res.data });
       } else toast.error(res.message);
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setLoadingId("");
+      console.log("update role error", error);
       if (error instanceof AxiosError) {
         return toast.error(error.response?.data.message, { id: toastId });
       }
       toast.error("something went wrong", { id: toastId });
+    } finally {
+      setLoadingId("");
     }
   };
 
@@ -148,7 +171,7 @@ export function MembersModal() {
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onKick(member.id)}>
                           <Gavel className="h-4 w-4 mr-2" />
                           Kick
                         </DropdownMenuItem>

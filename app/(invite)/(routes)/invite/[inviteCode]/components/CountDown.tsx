@@ -16,7 +16,7 @@ interface CountdownDialogProps {
 }
 
 const CountdownDialog = ({ message, serverId }: CountdownDialogProps) => {
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(3);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   useEffect(() => {
