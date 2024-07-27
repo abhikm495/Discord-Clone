@@ -3,35 +3,36 @@ import ServerHeader from "./server-header";
 
 import {
   Server,
-  ChannelType,
+  memberRole,
+  channelType,
 } from "@/schema/responseSchema/serverResponseSchema";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ScrollArea } from "../ui/scroll-area";
 import ServerSearch from "./server-search";
 import { Hash, Mic, ShieldAlert, ShieldCheck, Video } from "lucide-react";
+import { Separator } from "../ui/separator";
+import ServerSection from "./server-section";
 
 interface ServerSideBarProps {
   serverData: Server;
 }
 
 const iconMap = {
-  [ChannelType.Enum.TEXT]: <Hash className="mr-4 h-4 w-4" />,
-  [ChannelType.Enum.AUDIO]: <Mic className="mr-4 h-4 w-4" />,
-  [ChannelType.Enum.VIDEO]: <Video className="mr-4 h-4 w-4" />,
+  [channelType.TEXT]: <Hash className="mr-4 h-4 w-4" />,
+  [channelType.AUDIO]: <Mic className="mr-4 h-4 w-4" />,
+  [channelType.VIDEO]: <Video className="mr-4 h-4 w-4" />,
 };
-enum MemberRole {
-  ADMIN = "ADMIN",
-  MODERATOR = "MODERATOR",
-  GUEST = "GUEST",
-}
+
 const roleIconMap = {
-  [MemberRole.GUEST]: null,
-  [MemberRole.MODERATOR]: (
+  [memberRole.GUEST]: null,
+  [memberRole.MODERATOR]: (
     <ShieldCheck className="h-4 w-4 mr-2 text-indigo-500" />
   ),
-  [MemberRole.ADMIN]: <ShieldAlert className="h-4 w-4 mr-2 text-rose-500" />,
+  [memberRole.ADMIN]: <ShieldAlert className="h-4 w-4 mr-2 text-rose-500" />,
 };
+
+//testing
 
 const ServerSideBar = async ({ serverData }: ServerSideBarProps) => {
   const session = await auth();
@@ -40,13 +41,13 @@ const ServerSideBar = async ({ serverData }: ServerSideBarProps) => {
   }
 
   const textChannels = serverData.channels.filter(
-    (channel) => channel.type === ChannelType.Enum.TEXT
+    (channel) => channel.type === channelType.TEXT
   );
   const audioChannels = serverData.channels.filter(
-    (channel) => channel.type === ChannelType.Enum.AUDIO
+    (channel) => channel.type === channelType.AUDIO
   );
   const videoChannels = serverData.channels.filter(
-    (channel) => channel.type === ChannelType.Enum.VIDEO
+    (channel) => channel.type === channelType.VIDEO
   );
   const members = serverData.members.filter(
     (member) => member.profileId.toString() !== session?.user?.id
@@ -101,6 +102,17 @@ const ServerSideBar = async ({ serverData }: ServerSideBarProps) => {
             ]}
           />
         </div>
+        <Separator className="bg-zinc-200 dark:bg-zinc-700 rounded-md my-2" />
+        {!!textChannels.length && (
+          <div className="mb-2">
+            <ServerSection
+              sectionType="channels"
+              channelType={channelType.TEXT}
+              role={role}
+              label="Text Channels"
+            />
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

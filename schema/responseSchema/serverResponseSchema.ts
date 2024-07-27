@@ -7,7 +7,16 @@ const profileSchema = z.object({
   imageUrl: z.string(),
   email: z.string().email(),
 });
-
+export enum channelType {
+  TEXT = "TEXT",
+  AUDIO = "AUDIO",
+  VIDEO = "VIDEO",
+}
+export enum memberRole {
+  ADMIN = "ADMIN",
+  MODERATOR = "MODERATOR",
+  GUEST = "GUEST",
+}
 export const MemberRole = z.enum(["ADMIN", "MODERATOR", "GUEST"]);
 const memberSchema = z.object({
   id: z.number(),
@@ -19,8 +28,7 @@ const memberSchema = z.object({
   profile: profileSchema,
 });
 
-export const ChannelType = z.enum(["TEXT", "AUDIO", "VIDEO"]);
-
+const ChannelType = z.enum(["TEXT", "AUDIO", "VIDEO"]);
 const channelSchema = z.object({
   id: z.number(),
   name: z.string(),
