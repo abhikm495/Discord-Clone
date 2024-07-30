@@ -2,22 +2,22 @@
 import qs from "query-string";
 import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
-import { Server } from "@/schema/responseSchema/serverResponseSchema";
-import { AxiosError } from "axios";
 import {
-  CreateChannelSchema,
-  createChannelSchema,
-} from "@/schema/createChannelSchema";
-import { serverResponseSchema } from "@/schema/responseSchema/serverResponseSchema";
+  Server,
+  serverResponseSchema,
+} from "@/schema/responseSchema/serverResponseSchema";
+import { AxiosError } from "axios";
 import { revalidatePath } from "next/cache";
+import { CreateChannelSchema } from "@/schema/createChannelSchema";
 interface ResponseSchema {
   type: "error" | "success";
   message: string;
-  data?: Server;
+  server?: Server;
 }
 
-export async function createChannelAction(
+export async function editChannelAction(
   serverId: number,
+  channelId: number,
   channelSchema: CreateChannelSchema
 ): Promise<ResponseSchema> {
   try {
@@ -28,24 +28,14 @@ export async function createChannelAction(
         message: "user not logged in",
       };
     }
-    const reqValidation = await createChannelSchema.safeParseAsync(
-      channelSchema
-    );
-    if (!reqValidation.success) {
-      return {
-        type: "error",
-        message: "Request Validation error",
-      };
-    }
-
     const url = qs.stringifyUrl({
-      url: `/api/v1/channels`,
+      url: `/api/v1/channels/${channelId}`,
       query: {
         serverId: serverId,
       },
     });
 
-    const { data } = await axiosInstance(session.user.jwtToken).post(url, {
+    const { data } = await axiosInstance(session.user.jwtToken).patch(url, {
       name: channelSchema.name,
       type: channelSchema.type,
     });
@@ -61,10 +51,10 @@ export async function createChannelAction(
     return {
       type: "success",
       message: parsedData.data.message,
-      data: parsedData.data.data.server,
+      server: parsedData.data.data.server,
     };
   } catch (error) {
-    console.log("channel creation error", error);
+    console.log("edit channel error", error);
     if (error instanceof AxiosError) {
       return {
         type: "error",

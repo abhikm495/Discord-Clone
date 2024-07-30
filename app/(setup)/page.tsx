@@ -1,4 +1,3 @@
-// import { initialProfile } from "@/lib/initial-profile";
 import { redirect } from "next/navigation";
 import { InitialModal } from "@/components/modals/initial-modal";
 import { auth } from "@/lib/auth";
@@ -14,7 +13,10 @@ const SetupPage = async () => {
     const { data } = await axiosInstance(session.user.jwtToken).get(
       "api/v1/servers/first"
     );
+    console.log("apidata", data.server);
+
     const parsedData = await userFirstServerResponseSchema.safeParseAsync(data);
+
     if (!parsedData.success) {
       console.log(`Parsing Error: ${[parsedData.error]} `);
       return;
@@ -23,7 +25,10 @@ const SetupPage = async () => {
     if (!parsedData.data.success) {
       return <InitialModal />;
     }
-    url = `/servers/${parsedData.data.data.serverId}`;
+    const serverId = parsedData.data.data.serverId;
+    const channelId = parsedData.data.data.id;
+
+    url = `/servers/${serverId}/channels/${channelId}`;
   } catch (error) {
     if (error instanceof AxiosError) {
       console.log("error from axios interceptors", error.response?.data);

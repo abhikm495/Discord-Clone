@@ -17,9 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { useRouter } from "next/navigation";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/user-model-store";
@@ -37,11 +34,11 @@ import { channelTypeProp } from "@/schema/responseSchema/serverResponseSchema";
 import { createChannelAction } from "@/actions/createChannelAction";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-export function CreateChannelModel() {
+import { editChannelAction } from "@/actions/editChanelAction";
+export function EditChannelModal() {
   const { type, isOpen, onClose, data } = useModal();
-  const router = useRouter();
-  const { channelType } = data;
-  const isModelOpen = isOpen && type === "createChannel";
+  const { channel, server } = data;
+  const isModelOpen = isOpen && type === "editChannel";
 
   const formSchema = z.object({
     name: z
@@ -64,12 +61,13 @@ export function CreateChannelModel() {
   });
 
   useEffect(() => {
-    if (channelType) {
-      form.setValue("type", channelType);
-    } else {
-      form.setValue("type", channelTypeProp.TEXT);
+    if (channel) {
+      console.log("yeh hai type", channel.type);
+
+      form.setValue("name", channel.name);
+      form.setValue("type", channel.type);
     }
-  }, [channelType, form]);
+  }, [form, channel]);
   const isLoading = form.formState.isSubmitting;
   const searchparams = useParams();
   const serverId = searchparams.serverId;
@@ -77,13 +75,18 @@ export function CreateChannelModel() {
     const toastId = toast.info("Processing");
     try {
       if (!serverId) return toast.error("Server not present", { id: toastId });
+      if (!channel) return toast.error("Channel not present", { id: toastId });
       const serverIdNumber = parseInt(serverId as string, 10);
 
       if (isNaN(serverIdNumber)) {
         return toast.error("Invalid server ID", { id: toastId });
       }
 
-      const response = await createChannelAction(serverIdNumber, values);
+      const response = await editChannelAction(
+        serverIdNumber,
+        channel?.id,
+        values
+      );
       if (response && response.type === "error") {
         return toast.error(response.message, { id: toastId });
       } else {
@@ -106,7 +109,7 @@ export function CreateChannelModel() {
       <DialogContent className="bg-white text-black p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Create Channel
+            Edit Channel
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -171,7 +174,7 @@ export function CreateChannelModel() {
                 disabled={isLoading}
                 className="w-full"
               >
-                Create
+                Save
               </Button>
             </DialogFooter>
           </form>

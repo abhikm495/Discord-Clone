@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  channelType,
+  channelTypeProp,
   memberRole,
   Server,
 } from "@/schema/responseSchema/serverResponseSchema";
@@ -12,7 +12,7 @@ interface ServerSectionProps {
   label: string;
   role?: "ADMIN" | "MODERATOR" | "GUEST";
   sectionType: "channels" | "members";
-  channelType?: channelType;
+  channelType?: channelTypeProp;
   server?: Server;
 }
 
@@ -33,14 +33,14 @@ const ServerSection = ({
         <ActionToolTip label="Create Channel" side="top">
           <button
             className="text-zinc-50 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition"
-            onClick={() => onOpen("createChannel")}
+            onClick={() => onOpen("createChannel", { channelType })}
           >
             <Plus className="h-4 w-4" />
           </button>
         </ActionToolTip>
       )}
       {role === memberRole.ADMIN && sectionType === "members" && (
-        <ActionToolTip label="Create Channel" side="top">
+        <ActionToolTip label="Manage Members" side="top">
           <button
             className="text-zinc-50 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition"
             onClick={() => onOpen("members", { server })}

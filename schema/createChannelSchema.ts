@@ -1,10 +1,5 @@
 import { z } from "zod";
-
-enum ChannelType {
-  TEXT = "TEXT",
-  AUDIO = "AUDIO",
-  VIDEO = "VIDEO",
-}
+import { channelTypeProp } from "./responseSchema/serverResponseSchema";
 
 export const createChannelSchema = z.object({
   name: z
@@ -13,7 +8,7 @@ export const createChannelSchema = z.object({
     .refine((name) => name.toLowerCase() !== "general", {
       message: "Channel name cannot be any variation of 'general'",
     }),
-  type: z.nativeEnum(ChannelType),
+  type: z.nativeEnum(channelTypeProp),
 });
 
 export type CreateChannelSchema = z.infer<typeof createChannelSchema>;

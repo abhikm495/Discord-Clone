@@ -30,29 +30,29 @@ const axiosInstance = (token: string | undefined, contentType?: string) => {
             return Promise.reject(error);
           }
 
-          const response = await axios({
-            method: "post",
-            baseURL: BACKEND_URL,
-            url: "api/v1/auth/refresh",
-            headers: {
-              Authorization: `Bearer ${session.user.refreshToken}`,
-              "Content-Type": "application/json",
-            },
-          });
+          // // const response = await axios({
+          // //   method: "post",
+          // //   baseURL: BACKEND_URL,
+          // //   url: "api/v1/auth/refresh",
+          // //   headers: {
+          // //     Authorization: `Bearer ${session.user.refreshToken}`,
+          // //     "Content-Type": "application/json",
+          // //   },
+          // // });
 
-          const parsedData = await loginResponseSchema.safeParseAsync(
-            response.data
-          );
+          // // const parsedData = await loginResponseSchema.safeParseAsync(
+          // //   response.data
+          // // );
 
-          if (!parsedData.success) {
-            return Promise.reject(error);
-          }
+          // // if (!parsedData.success) {
+          // //   return Promise.reject(error);
+          // // }
 
-          refreshJWT(parsedData.data);
-          // Retry the original request with the new token
+          // // refreshJWT(parsedData.data);
+          // // Retry the original request with the new token
 
-          originalRequest.headers.Authorization = `Bearer ${parsedData.data.jwttoken}`;
-          return axios(originalRequest);
+          // originalRequest.headers.Authorization = `Bearer ${parsedData.data.jwttoken}`;
+          // return axios(originalRequest);
         } catch (error) {
           if (error instanceof AxiosError) {
             console.log("error from axios interceptors", error.response?.data);

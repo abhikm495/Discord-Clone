@@ -1,6 +1,10 @@
-import { Server } from "@/schema/responseSchema/serverResponseSchema";
+import {
+  Channel,
+  channelTypeProp,
+  // channelType,
+  Server,
+} from "@/schema/responseSchema/serverResponseSchema";
 import { create } from "zustand";
-
 export type ModalType =
   | "createServer"
   | "invite"
@@ -8,10 +12,14 @@ export type ModalType =
   | "members"
   | "createChannel"
   | "leaveServer"
-  | "deleteServer";
+  | "deleteServer"
+  | "deleteChannel"
+  | "editChannel";
 
 interface ModalData {
   server?: Server;
+  channel?: Channel;
+  channelType?: channelTypeProp;
 }
 interface ModalStore {
   type: ModalType | null;

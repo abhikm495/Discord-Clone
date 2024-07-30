@@ -4,7 +4,7 @@ import ServerHeader from "./server-header";
 import {
   Server,
   memberRole,
-  channelType,
+  channelTypeProp,
 } from "@/schema/responseSchema/serverResponseSchema";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -13,15 +13,17 @@ import ServerSearch from "./server-search";
 import { Hash, Mic, ShieldAlert, ShieldCheck, Video } from "lucide-react";
 import { Separator } from "../ui/separator";
 import ServerSection from "./server-section";
+import { ServerChannel } from "./server-channel";
+import ServerMember from "./server-member";
 
 interface ServerSideBarProps {
   serverData: Server;
 }
 
 const iconMap = {
-  [channelType.TEXT]: <Hash className="mr-4 h-4 w-4" />,
-  [channelType.AUDIO]: <Mic className="mr-4 h-4 w-4" />,
-  [channelType.VIDEO]: <Video className="mr-4 h-4 w-4" />,
+  [channelTypeProp.TEXT]: <Hash className="mr-4 h-4 w-4" />,
+  [channelTypeProp.AUDIO]: <Mic className="mr-4 h-4 w-4" />,
+  [channelTypeProp.VIDEO]: <Video className="mr-4 h-4 w-4" />,
 };
 
 const roleIconMap = {
@@ -41,13 +43,13 @@ const ServerSideBar = async ({ serverData }: ServerSideBarProps) => {
   }
 
   const textChannels = serverData.channels.filter(
-    (channel) => channel.type === channelType.TEXT
+    (channel) => channel.type === channelTypeProp.TEXT
   );
   const audioChannels = serverData.channels.filter(
-    (channel) => channel.type === channelType.AUDIO
+    (channel) => channel.type === channelTypeProp.AUDIO
   );
   const videoChannels = serverData.channels.filter(
-    (channel) => channel.type === channelType.VIDEO
+    (channel) => channel.type === channelTypeProp.VIDEO
   );
   const members = serverData.members.filter(
     (member) => member.profileId.toString() !== session?.user?.id
@@ -107,10 +109,71 @@ const ServerSideBar = async ({ serverData }: ServerSideBarProps) => {
           <div className="mb-2">
             <ServerSection
               sectionType="channels"
-              channelType={channelType.TEXT}
+              channelType={channelTypeProp.TEXT}
               role={role}
               label="Text Channels"
             />
+            {textChannels.map((channel) => (
+              <ServerChannel
+                key={channel.id}
+                channel={channel}
+                role={role}
+                server={serverData}
+              />
+            ))}
+          </div>
+        )}
+        {!!audioChannels.length && (
+          <div className="mb-2">
+            <ServerSection
+              sectionType="channels"
+              channelType={channelTypeProp.AUDIO}
+              role={role}
+              label="Audio Channels"
+            />
+            {audioChannels.map((channel) => (
+              <ServerChannel
+                key={channel.id}
+                channel={channel}
+                role={role}
+                server={serverData}
+              />
+            ))}
+          </div>
+        )}
+        {!!videoChannels.length && (
+          <div className="mb-2">
+            <ServerSection
+              sectionType="channels"
+              channelType={channelTypeProp.VIDEO}
+              role={role}
+              label="Video Channels"
+            />
+            {videoChannels.map((channel) => (
+              <ServerChannel
+                key={channel.id}
+                channel={channel}
+                role={role}
+                server={serverData}
+              />
+            ))}
+          </div>
+        )}
+        {!!members.length && (
+          <div className="mb-2">
+            <ServerSection
+              sectionType="members"
+              role={role}
+              label="Members"
+              server={serverData}
+            />
+            {members.map((member) => (
+              <ServerMember
+                key={member.id}
+                member={member}
+                server={serverData}
+              />
+            ))}
           </div>
         )}
       </ScrollArea>

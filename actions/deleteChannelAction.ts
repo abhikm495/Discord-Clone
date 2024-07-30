@@ -2,23 +2,17 @@
 import qs from "query-string";
 import { auth } from "@/lib/auth";
 import axiosInstance from "@/lib/axios-instance";
-import { Server } from "@/schema/responseSchema/serverResponseSchema";
 import { AxiosError } from "axios";
-import {
-  CreateChannelSchema,
-  createChannelSchema,
-} from "@/schema/createChannelSchema";
-import { serverResponseSchema } from "@/schema/responseSchema/serverResponseSchema";
 import { revalidatePath } from "next/cache";
+import { generalResponseSchema } from "@/schema/responseSchema/generalResponseSchema";
 interface ResponseSchema {
   type: "error" | "success";
   message: string;
-  data?: Server;
 }
 
-export async function createChannelAction(
+export async function deleteChannelAction(
   serverId: number,
-  channelSchema: CreateChannelSchema
+  channelId: number
 ): Promise<ResponseSchema> {
   try {
     const session = await auth();
@@ -28,29 +22,16 @@ export async function createChannelAction(
         message: "user not logged in",
       };
     }
-    const reqValidation = await createChannelSchema.safeParseAsync(
-      channelSchema
-    );
-    if (!reqValidation.success) {
-      return {
-        type: "error",
-        message: "Request Validation error",
-      };
-    }
-
     const url = qs.stringifyUrl({
-      url: `/api/v1/channels`,
+      url: `/api/v1/channels/${channelId}`,
       query: {
         serverId: serverId,
       },
     });
 
-    const { data } = await axiosInstance(session.user.jwtToken).post(url, {
-      name: channelSchema.name,
-      type: channelSchema.type,
-    });
+    const { data } = await axiosInstance(session.user.jwtToken).delete(url);
 
-    const parsedData = await serverResponseSchema.safeParseAsync(data);
+    const parsedData = await generalResponseSchema.safeParseAsync(data);
     if (!parsedData.success) {
       return {
         type: "error",
@@ -61,10 +42,9 @@ export async function createChannelAction(
     return {
       type: "success",
       message: parsedData.data.message,
-      data: parsedData.data.data.server,
     };
   } catch (error) {
-    console.log("channel creation error", error);
+    console.log("delete member error", error);
     if (error instanceof AxiosError) {
       return {
         type: "error",

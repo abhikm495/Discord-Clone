@@ -1,31 +1,37 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { ActionToolTip } from "@/components/action-tooltip";
-import Link from "next/link";
+import Image from 'next/image'
+import { useParams, useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { ActionToolTip } from '@/components/action-tooltip'
+import Link from 'next/link'
 
 interface NavigationItemProps {
-  id: number;
-  imageUrl: string;
-  name: string;
+  channelId: number
+  id: number
+  imageUrl: string
+  name: string
 }
 
-const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
-  const params = useParams();
+const NavigationItem = ({
+  id,
+  imageUrl,
+  name,
+  channelId,
+}: NavigationItemProps) => {
+  const params = useParams()
 
   return (
     <ActionToolTip side="right" align="center" label={name}>
       <Link
-        href={`/servers/${id}`}
+        href={`/servers/${id}/channels/${channelId}`}
         className="group relative flex items-center"
       >
         <div
           className={cn(
-            "absolute left-0 bg-primary rounded-r-full transition-all w=[4px]",
-            params?.serverId !== id.toString() && "group-hover:h-[20px]",
-            params?.serverId === id.toString() ? "h-[36px]" : "h-[8px]"
+            'absolute left-0 bg-primary rounded-r-full transition-all w=[4px]',
+            params?.serverId !== id.toString() && 'group-hover:h-[20px]',
+            params?.serverId === id.toString() ? 'h-[36px]' : 'h-[8px]'
           )}
         />
         {params.serverId === id.toString() ? (
@@ -46,16 +52,16 @@ const NavigationItem = ({ id, imageUrl, name }: NavigationItemProps) => {
 
         <div
           className={cn(
-            "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden ",
+            'relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden ',
             params?.serverId === id.toString() &&
-              "bg-primary/10 text-primary rounded-[16px] "
+              'bg-primary/10 text-primary rounded-[16px] '
           )}
         >
           <Image fill src={imageUrl} alt="Channel" />
         </div>
       </Link>
     </ActionToolTip>
-  );
-};
+  )
+}
 
-export default NavigationItem;
+export default NavigationItem
