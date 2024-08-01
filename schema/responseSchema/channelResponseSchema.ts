@@ -2,13 +2,12 @@ import { z } from 'zod'
 import { generalResponseSchema } from './generalResponseSchema'
 import { channelSchema } from './serverResponseSchema'
 
-export const userFirstServerModule = channelSchema
-export type FooterModuleSchema = z.infer<typeof userFirstServerModule>
+export type ChannelResponseSchema = z.infer<typeof channelSchema>
 
-export const userFirstServerResponseSchema = z
+export const channelResponseSchema = z
   .object({
     data: z.object({
-      channel: userFirstServerModule,
+      channel: channelSchema,
     }),
   })
   .merge(generalResponseSchema)
